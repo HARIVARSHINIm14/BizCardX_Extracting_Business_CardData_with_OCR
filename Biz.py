@@ -76,7 +76,7 @@ st.set_page_config(
 
 
 st.title("BizCardX: Extracting Business Card Data with OCR 🔎")
-select= option_menu("Mani Menu",["Home","Upload & Modifying","Delete","About OCR"],
+select= option_menu("Mani Menu",["Home","Upload - Modifying - Delete","About OCR"],
                         default_index=0,
                         orientation="horizontal")
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
@@ -92,8 +92,8 @@ if  select == "Home":
     with col2:
         st.markdown("##### :green[**Overview :**] In this streamlit web app you can extract relevant information from it using easyOCR. You can view, modify or delete the extracted data in this app. This app would also allow users to save the extracted information into a database along with the uploaded business card image. The database would be able to store multiple entries, each with its own business card image and extracted information.")
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-#upload and modify
-elif select =="Upload & Modifying":
+#upload, modify and delete
+elif select =="Upload - Modifying - Delete":
     img = st.file_uploader("Upload the Image",type = ["png","jpg","jpeg"])
 
     if img is not None:
@@ -143,12 +143,13 @@ elif select =="Upload & Modifying":
             mydb.commit()
 
             st.success("SAVED SUCCESSFULLY")
+#------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#            
     #selecting none-modify-preview
-    method = st.selectbox("Select the Method",["None","preview","Modify"])
-
+    method = st.selectbox("Select the Method",["None","preview","Modify","Delete"])
+#------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
     if method == "None":
         st.write("")
-
+#------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
     elif method == "preview":
 
         mydb = sql.connect(host="localhost",
@@ -168,7 +169,7 @@ elif select =="Upload & Modifying":
         table_df = pd.DataFrame(table,columns=("NAME","DESIGNATION","COMPANY_NAME","CONTACT","EMAIL","WEBSITE","ADDRESS","PINCODE","IMAGE"))
 
         st.dataframe(table_df)
-
+#------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
     elif method == "Modify":
         mydb = sql.connect(host="localhost",
                    user="root",
@@ -256,56 +257,56 @@ elif select =="Upload & Modifying":
             st.success("MODIFIED SUCCESSFULLY")
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 #Delection
-elif select == "Delete":
-    mydb = sql.connect(host="localhost",
-                user="root",
-                password="12345",
-                database= "bixcard"
-                )
-    mycursor = mydb.cursor(buffered = True)
+    elif method == "Delete":
+        mydb = sql.connect(host="localhost",
+                    user="root",
+                    password="12345",
+                    database= "bixcard"
+                    )
+        mycursor = mydb.cursor(buffered = True)
 
-    col1,col2 = st.columns(2)
-    with col1:
-        #select query
-        select_query = "select name from bizcard"
-        mycursor.execute(select_query)
-        table1 = mycursor.fetchall()
-        mydb.commit()
-        names = []
-        for i in table1:
-            names.append(i[0])
-        name_select = st.selectbox("Select the name",names)
-    
-    with col2:
-        #select query
-        select_query = f"select designation from bizcard where name = '{name_select}'"
-        mycursor.execute(select_query)
-        table2 = mycursor.fetchall()
-        mydb.commit()
-        designations = []
-        for j in table2:
-            designations.append(j[0])
-        designation_select = st.selectbox("Select the designation",designations)
-
-    if name_select and designation_select:
-        col1,col2,col3 = st.columns(3)
-
+        col1,col2 = st.columns(2)
         with col1:
-            st.write(f"Selected Name: {name_select}")
-            st.write("")
-            st.write("")
-            st.write("")
-            st.write(f"Selected Designation: {designation_select}")
+            #select query
+            select_query = "select name from bizcard"
+            mycursor.execute(select_query)
+            table1 = mycursor.fetchall()
+            mydb.commit()
+            names = []
+            for i in table1:
+                names.append(i[0])
+            name_select = st.selectbox("Select the name",names)
+        
+        with col2:
+            #select query
+            select_query = f"select designation from bizcard where name = '{name_select}'"
+            mycursor.execute(select_query)
+            table2 = mycursor.fetchall()
+            mydb.commit()
+            designations = []
+            for j in table2:
+                designations.append(j[0])
+            designation_select = st.selectbox("Select the designation",designations)
 
-        with col1:
-            st.write("")
-            st.write("")
-            remove = st.button("Delete", use_container_width= True)
+        if name_select and designation_select:
+            col1,col2,col3 = st.columns(3)
 
-            if remove:
-                mycursor.execute(f"delete from bizcard where name = '{name_select}' and  designation = '{designation_select}'")
-                mydb.commit()
-                st.warning("DELETED SUCCESSFULLY")
+            with col1:
+                st.write(f"Selected Name: {name_select}")
+                st.write("")
+                st.write("")
+                st.write("")
+                st.write(f"Selected Designation: {designation_select}")
+
+            with col1:
+                st.write("")
+                st.write("")
+                remove = st.button("Delete", use_container_width= True)
+
+                if remove:
+                    mycursor.execute(f"delete from bizcard where name = '{name_select}' and  designation = '{designation_select}'")
+                    mydb.commit()
+                    st.warning("DELETED SUCCESSFULLY")
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 #About OCR
 elif select =="About OCR":
