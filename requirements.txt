@@ -1,0 +1,7 @@
+easyocr==1.7.1
+mysql-connector-python==8.3.0
+numpy==1.26.4
+pillow==9.2.0
+pandas==2.2.1
+streamlit==1.37.1
+streamlit-option-menu==0.3.12
